@@ -17,5 +17,7 @@ dat-exporter-gui = "app:app.launch"
 
 [dependency-groups]
 dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
     "ruff>=0.14.10",
 ]

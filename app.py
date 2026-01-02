@@ -173,20 +173,20 @@ def preview_file(file) -> tuple[pd.DataFrame, str]:
             info += f" | Menampilkan 100 dari {len(df):,} baris"
         else:
             preview_df = df
-        return preview_df, f"✅ {info}"
+        return preview_df, f"[OK] {info}"
     except Exception as e:
-        return pd.DataFrame(), f"❌ Error: {str(e)}"
+        return pd.DataFrame(), f"[ERROR] {str(e)}"
 
 
 def export_single(file) -> tuple[str, str]:
     """Ekspor satu file ke Excel"""
     if file is None:
-        return None, "❌ Silakan upload file terlebih dahulu"
+        return None, "[ERROR] Silakan upload file terlebih dahulu"
 
     try:
         df, info = detect_and_read(file.name)
         if len(df) == 0:
-            return None, "❌ File kosong atau tidak dapat dibaca"
+            return None, "[ERROR] File kosong atau tidak dapat dibaca"
 
         # Buat file output
         output_name = Path(file.name).stem + "_export.xlsx"
@@ -194,15 +194,15 @@ def export_single(file) -> tuple[str, str]:
 
         df.to_excel(output_path, index=False, engine="openpyxl")
 
-        return str(output_path), f"✅ Berhasil! {len(df):,} baris diekspor"
+        return str(output_path), f"[OK] Berhasil! {len(df):,} baris diekspor"
     except Exception as e:
-        return None, f"❌ Error: {str(e)}"
+        return None, f"[ERROR] {str(e)}"
 
 
 def export_multiple(files) -> tuple[str, str]:
     """Ekspor multiple files ke satu Excel (multi-sheet)"""
     if not files:
-        return None, "❌ Silakan upload minimal satu file"
+        return None, "[ERROR] Silakan upload minimal satu file"
 
     try:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -216,23 +216,23 @@ def export_multiple(files) -> tuple[str, str]:
                     if len(df) > 0:
                         sheet_name = Path(file.name).stem[:31]
                         df.to_excel(writer, sheet_name=sheet_name, index=False)
-                        results.append(f"✅ {sheet_name}: {len(df):,} baris")
+                        results.append(f"[OK] {sheet_name}: {len(df):,} baris")
                     else:
-                        results.append(f"⚠️ {Path(file.name).name}: kosong")
+                        results.append(f"[WARN] {Path(file.name).name}: kosong")
                 except Exception as e:
-                    results.append(f"❌ {Path(file.name).name}: {str(e)}")
+                    results.append(f"[ERROR] {Path(file.name).name}: {str(e)}")
 
         status = "\n".join(results)
         return str(output_path), f"Hasil ekspor:\n{status}"
     except Exception as e:
-        return None, f"❌ Error: {str(e)}"
+        return None, f"[ERROR] {str(e)}"
 
 
 # ============== GRADIO UI ==============
 
 with gr.Blocks(title="DAT/DTA Exporter") as app:
     gr.Markdown("""
-    # 📊 DAT/DTA to Excel Exporter
+    # DAT/DTA to Excel Exporter
 
     Aplikasi untuk mengkonversi file database legacy (`.DAT`, `.DTA`) ke format Excel (`.xlsx`).
 
@@ -244,7 +244,7 @@ with gr.Blocks(title="DAT/DTA Exporter") as app:
 
     with gr.Tabs():
         # Tab 1: Single File
-        with gr.TabItem("📄 Satu File"):
+        with gr.TabItem("Satu File"):
             with gr.Row():
                 with gr.Column(scale=1):
                     single_file = gr.File(
@@ -252,8 +252,8 @@ with gr.Blocks(title="DAT/DTA Exporter") as app:
                         file_types=[".dat", ".dta", ".DAT", ".DTA"],
                     )
                     with gr.Row():
-                        btn_preview = gr.Button("👁️ Preview", variant="secondary")
-                        btn_export = gr.Button("📥 Export ke Excel", variant="primary")
+                        btn_preview = gr.Button("Preview", variant="secondary")
+                        btn_export = gr.Button("Export ke Excel", variant="primary")
 
                 with gr.Column(scale=2):
                     status_single = gr.Textbox(
@@ -278,7 +278,7 @@ with gr.Blocks(title="DAT/DTA Exporter") as app:
             )
 
         # Tab 2: Multiple Files
-        with gr.TabItem("📁 Multiple Files"):
+        with gr.TabItem("Multiple Files"):
             gr.Markdown("""
             Upload beberapa file sekaligus. Setiap file akan menjadi **sheet terpisah** dalam satu file Excel.
             """)
@@ -291,7 +291,7 @@ with gr.Blocks(title="DAT/DTA Exporter") as app:
                         file_types=[".dat", ".dta", ".DAT", ".DTA"],
                     )
                     btn_export_multi = gr.Button(
-                        "📥 Export Semua ke Excel", variant="primary", size="lg"
+                        "Export Semua ke Excel", variant="primary", size="lg"
                     )
 
                 with gr.Column(scale=1):
